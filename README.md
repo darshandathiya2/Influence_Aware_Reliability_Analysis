@@ -30,3 +30,19 @@ Influence_Aware_Reliability_Analysis/
 ├── LICENSE
 ├── requirements.txt
 └── README.md
+
+## Requirements
+
+Install the required dependencies:
+
+```bash
+pip install numpy matplotlib json
+```
+
+## Usage
+
+The proposed influence-aware reliability evaluation framework can be used by running:
+
+```bash
+python influence_aware_evaluation.py
+```
