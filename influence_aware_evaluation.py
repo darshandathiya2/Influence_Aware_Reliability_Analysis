@@ -78,7 +78,7 @@ def jackknife_analysis(dice_scores):
 
 def plot_jackknife_convergence(
     dice_scores,
-    max_sample_size=None,
+    max_sample_size=500,
     step=5,
     runs=300,
     seed=42,
@@ -86,75 +86,65 @@ def plot_jackknife_convergence(
 ):
     """
     Evaluate the empirical convergence of the jackknife estimator
-    using per-sample segmentation Dice scores.
+    using bootstrap samples of per-case Dice scores.
     """
 
     # Prepare Dice scores
     dice_scores = np.asarray(dice_scores, dtype=float).flatten()
     dice_scores = dice_scores[np.isfinite(dice_scores)]
 
-    n_cases = len(dice_scores)
-
-    if n_cases < 2:
+    if len(dice_scores) < 2:
         raise ValueError("At least two valid Dice scores are required.")
 
-    if max_sample_size is None:
-        max_sample_size = n_cases
+    print("Number of available cases:", len(dice_scores))
 
-    max_sample_size = min(max_sample_size, n_cases)
-
-    if step < 1 or runs < 1:
-        raise ValueError("step and runs must be positive.")
-
-    print("Number of valid cases:", n_cases)
-
-    # Full-sample reference estimate
+    # Full-dataset reference estimate
     true_theta = np.sqrt(np.mean(dice_scores))
 
-    # Sampling configuration
+    # Bootstrap sampling configuration
     rng = np.random.default_rng(seed)
-    sample_sizes = np.arange(2, max_sample_size + 1, step)
+    sample_sizes = np.arange(5, max_sample_size + 1, step)
 
     jackknife_mse = []
 
     for n in sample_sizes:
 
-        squared_errors = []
+        jack_errors = []
 
         for _ in range(runs):
 
-            # Bootstrap sampling
+            # Bootstrap sampling with replacement
             x = rng.choice(dice_scores, size=n, replace=True)
 
             # Ordinary estimator
             theta = np.sqrt(np.mean(x))
 
             # Leave-one-out estimates
-            loo_estimates = np.array([
+            jackknife_estimates = np.array([
                 np.sqrt(np.mean(np.delete(x, i)))
                 for i in range(n)
             ])
 
             # Bias-corrected jackknife estimator
             theta_jack = (
-                n * theta - (n - 1) * np.mean(loo_estimates)
+                n * theta - (n - 1) * np.mean(jackknife_estimates)
             )
 
             # Squared estimation error
-            squared_errors.append((theta_jack - true_theta) ** 2)
+            jack_errors.append((theta_jack - true_theta) ** 2)
 
-        jackknife_mse.append(np.mean(squared_errors))
+        jackknife_mse.append(np.mean(jack_errors))
 
     jackknife_mse = np.asarray(jackknife_mse)
 
-    # Plot
+    # Plot convergence curve
     plt.figure(figsize=(7, 5))
 
     plt.plot(
         sample_sizes,
         jackknife_mse,
         linewidth=2,
-        label="Jackknife MSE"
+        label="Jackknife Error"
     )
 
     plt.xlabel("Sample Size (n)")
@@ -168,6 +158,59 @@ def plot_jackknife_convergence(
     plt.show()
 
     return sample_sizes, jackknife_mse
+
+
+def plot_loo_sensitivity(
+    dice_scores,
+    save_path=None
+):
+    """
+    Perform leave-one-out sensitivity analysis using per-sample Dice scores.
+    """
+
+    # Prepare Dice scores
+    dice_scores = np.asarray(dice_scores, dtype=float).flatten()
+    dice_scores = dice_scores[np.isfinite(dice_scores)]
+
+    n = len(dice_scores)
+
+    if n < 2:
+        raise ValueError("At least two valid Dice scores are required.")
+
+    # Original mean Dice
+    theta = np.mean(dice_scores)
+
+    # Leave-one-out means
+    theta_loo = np.array([
+        np.mean(np.delete(dice_scores, i))
+        for i in range(n)
+    ])
+
+    # LOO sensitivity scores
+    sensitivity = theta_loo - theta
+
+    # Assign colors
+    colors = ["red" if s > 0 else "blue" for s in sensitivity]
+
+    # Plot
+    plt.figure(figsize=(10, 5))
+    plt.bar(range(n), sensitivity, color=colors)
+    plt.axhline(0, linestyle="--")
+
+    plt.xlabel("Sample Index")
+    plt.ylabel("Δ Dice")
+    plt.tight_layout()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    return {
+        "original_mean": theta,
+        "jackknife_means": theta_loo,
+        "sensitivity_scores": sensitivity
+    }
 
 
 def plot_k_sample_sensitivity(
