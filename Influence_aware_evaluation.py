@@ -168,3 +168,103 @@ def plot_jackknife_convergence(
     plt.show()
 
     return sample_sizes, jackknife_mse
+
+
+def plot_k_sample_sensitivity(
+    dice_scores,
+    max_k=5,
+    save_path=None
+):
+    """
+    Perform influence-based k-sample sensitivity analysis and
+    plot the change in mean Dice after removing influential samples.
+
+    Parameters
+    ----------
+    dice_scores : array-like
+        Per-sample Dice scores.
+    max_k : int
+        Maximum number of influential samples to remove.
+    save_path : str or None
+        Optional path to save the stability plot.
+
+    Returns
+    -------
+    dict
+        Full mean, influence scores, ranked sample indices,
+        k values, and mean Dice after sample removal.
+    """
+
+    # Prepare Dice scores
+    dice_scores = np.asarray(dice_scores, dtype=float).flatten()
+    valid_mask = np.isfinite(dice_scores)
+    dice_scores = dice_scores[valid_mask]
+
+    n = len(dice_scores)
+
+    if n < 2:
+        raise ValueError("At least two valid Dice scores are required.")
+
+    if max_k < 1 or max_k >= n:
+        raise ValueError("max_k must be between 1 and n-1.")
+
+    # Step 1: Compute full-sample mean
+    full_mean = np.mean(dice_scores)
+
+    # Step 2: Compute leave-one-out means
+    jackknife_means = np.array([
+        np.mean(np.delete(dice_scores, i))
+        for i in range(n)
+    ])
+
+    # Step 3: Compute absolute influence scores
+    influence_scores = np.abs(full_mean - jackknife_means)
+
+    # Step 4: Rank samples by influence
+    sorted_indices = np.argsort(influence_scores)[::-1]
+
+    # Step 5: Progressive top-k sample removal
+    k_values = np.arange(1, max_k + 1)
+    stability_results = []
+
+    for k in k_values:
+
+        remove_indices = sorted_indices[:k]
+        remaining_scores = np.delete(dice_scores, remove_indices)
+
+        new_mean = np.mean(remaining_scores)
+        stability_results.append(new_mean)
+
+        print(
+            f"k={k} | "
+            f"Removed indices: {remove_indices} | "
+            f"New Mean Dice: {new_mean:.4f}"
+        )
+
+    stability_results = np.asarray(stability_results)
+
+    # Step 6: Plot stability curve
+    k_plot = np.concatenate(([0], k_values))
+    dice_plot = np.concatenate(([full_mean], stability_results))
+
+    plt.figure(figsize=(7, 5))
+    plt.plot(k_plot, dice_plot, marker="o", linewidth=2)
+
+    plt.xlabel("Number of Removed Samples (k)")
+    plt.ylabel("Mean Dice Score")
+    plt.title("Influence-Based k-Sample Sensitivity Analysis")
+    plt.xticks(k_plot)
+    plt.tight_layout()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    return {
+        "full_mean": full_mean,
+        "influence_scores": influence_scores,
+        "ranked_indices": sorted_indices,
+        "k_values": k_values,
+        "stability_results": stability_results
+    }
