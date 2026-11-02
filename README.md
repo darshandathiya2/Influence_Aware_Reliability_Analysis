@@ -42,8 +42,9 @@ pip install numpy matplotlib json
 
 ## Usage
 
-The proposed influence-aware reliability evaluation framework can be used by running:
+An example implementation of the proposed framework is provided in the Jupyter Notebook:
 
 ```bash
-python influence_aware_evaluation.py
+Influence_Aware_Evaluation_Example.ipynb
 ```
+Run the notebook cells sequentially to reproduce the results and visualizations.
