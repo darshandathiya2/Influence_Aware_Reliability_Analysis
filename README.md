@@ -14,4 +14,16 @@ The proposed framework is evaluated using **nnU-Net** segmentation results from 
 - **BUSI**: Breast ultrasound tumor segmentation.
 - **BraTS2020**: Brain tumor segmentation (Whole Tumor region).
 
-The reliability analysis is performed on case-wise Dice coefficients obtained from held-out test sets.
+The reliability analysis is performed on **case-wise Dice coefficients** obtained from held-out test sets.
+
+## Repository Structure
+
+```text
+repository-name/
+├── folder1/
+│   ├── file1.py
+│   └── file2.py
+├── folder2/
+│   └── results/
+├── requirements.txt
+└── README.md
