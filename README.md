@@ -19,11 +19,9 @@ The reliability analysis is performed on **case-wise Dice coefficients** obtaine
 ## Repository Structure
 
 ```text
-repository-name/
-├── folder1/
-│   ├── file1.py
+Influence_Aware_Reliability_Analysis/
+├── data/
 │   └── file2.py
-├── folder2/
-│   └── results/
+├── influence_aware_evaluation.py
 ├── requirements.txt
 └── README.md
