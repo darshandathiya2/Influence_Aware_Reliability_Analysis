@@ -2,7 +2,7 @@
 
 This repository contains the implementation of the Influence-Aware Reliability Evaluation Framework proposed in the paper "Beyond Average Dice: Influence-Aware Reliability Evaluation of Medical Image Segmentation"
 
-# Overview
+## Overview
 Influence-Aware Reliability Analysis provides a statistical framework for examining the stability of medical image segmentation results at the individual-case level. Rather than relying exclusively on aggregate performance metrics (Dice Coefficient), it investigates how variations across test samples affect the estimated mean Dice coefficient. The framework combines jackknife estimation, bootstrap comparison, and leave-one-out analysis to characterize uncertainty and identify samples with a substantial impact on overall performance.
 
 ## Key Features
