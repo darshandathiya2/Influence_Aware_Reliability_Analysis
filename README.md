@@ -27,5 +27,6 @@ Influence_Aware_Reliability_Analysis/
 ├── data/
 │   └── summary_BUSI.json   #Per-sample segmentation performance metrics for the BUSI test set
 ├── influence_aware_evaluation.py   #Evaluates the influence of individual test samples on overall segmentation performance and quantifies the uncertainty and stability of performance estimates
+├── LICENSE
 ├── requirements.txt
 └── README.md
