@@ -21,7 +21,7 @@ The reliability analysis is performed on **case-wise Dice coefficients** obtaine
 ```text
 Influence_Aware_Reliability_Analysis/
 ├── data/
-│   └── file2.py
+│   └── summary_BUSI.json
 ├── influence_aware_evaluation.py
 ├── requirements.txt
 └── README.md
