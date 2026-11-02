@@ -30,13 +30,13 @@ Influence_Aware_Reliability_Analysis/
 ├── LICENSE
 ├── requirements.txt
 └── README.md
-
+```
 
 ## Requirements
 
 Install the required dependencies:
 
-```bash
+```
 pip install numpy matplotlib json
 ```
 
